@@ -10,12 +10,14 @@ const Header = () => {
         <Container maxWidth="lg">
           <Toolbar disableGutters>
             <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
-              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: "primary.main" }}>
+              <Typography variant="h6" noWrap component="div" 
+                sx={{ flexGrow: 1, color: "primary.main", fontSize: "2rem" }}>
                 Review
               </Typography>
             </Box>
             {["/", "/about"].map((path, index) => (
-                <Button key={index} color="inherit"  component={RouterLink} to={path} sx={{ color: "primary.main" }}>
+                <Button key={index} color="inherit" component={RouterLink} to={path} 
+                  sx={{ color: "primary.main", fontSize: "1.5rem" }}>
                     {["Home", "About"][index]}
                 </Button>
             ))}

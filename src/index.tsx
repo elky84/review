@@ -18,19 +18,29 @@ import PostList from './components/Post/PostList';
 // import 'antd/dist/antd.css';  // Ant Design 스타일 임포트
 
 const customTheme = createTheme({
+  typography: {
+    fontFamily: "'DOSGothic', sans-serif",
+  },
   palette: {
-    background: { default: "#ffffff" }, // 어두운 배경
-    primary: { main: "#cccccc" }, // 주요 색상
-    text: { primary: "#000000" }, // 텍스트 색상을 밝게 설정
+    background: { default: "#ffffff" },
+    primary: { main: "#cccccc" },
+    text: { primary: "#000000" },
   },
   components: {
     MuiAppBar: {
       styleOverrides: {
         colorInherit: {
-          backgroundColor: "#121212", // 어두운 배경
-          color: "#64B5F6", // 텍스트 색상
+          backgroundColor: "#121212",
+          color: "#64B5F6",
           boxShadow: "none",
-          borderBottom: "1px solid #424242", // 어두운 테마의 분할선 색상
+          borderBottom: "1px solid #424242",
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          fontSize: "1.5rem", // AppBar 내부 Typography 글씨 크기 키우기
         },
       },
     },

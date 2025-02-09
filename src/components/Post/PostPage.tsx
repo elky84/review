@@ -131,7 +131,7 @@ const PostPage: React.FC = () => {
           <button
             key={tag}
             onClick={() => onClickTag(tag)}
-            style={{ fontWeight: metadata.tags.includes(tag) ? 'bold' : 'normal' }}
+            style={{ fontWeight: metadata.tags.includes(tag) ? 'bold' : 'normal', margin: 4 }}
           >
             {tag}
           </button>

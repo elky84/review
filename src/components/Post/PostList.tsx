@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { PostData, PostListProps } from './types';
 import { Tag } from "antd";
 
@@ -67,6 +67,7 @@ const PostList: React.FC<PostListProps> = () => {
   const [years, setYears] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const location = useLocation();
 
   const allTags = Array.from(new Set(postsData.flatMap(post => post.tags)));
   
@@ -79,7 +80,7 @@ const PostList: React.FC<PostListProps> = () => {
   }, [selectedTags, selectedYears]);
   
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
+    const queryParams = new URLSearchParams(location.search);
 
     const urlTags = queryParams.getAll("tags");
     const urlYears = queryParams.getAll("years");
@@ -94,7 +95,7 @@ const PostList: React.FC<PostListProps> = () => {
         setPostsData(sortedData);
       })
       .catch(error => console.error('Error fetching posts data:', error));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     updateQueryParams();
