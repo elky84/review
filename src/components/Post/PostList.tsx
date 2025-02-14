@@ -5,7 +5,7 @@ import { PostData, PostListProps } from './types';
 import { Tag } from "antd";
 
 const Card = styled.div`
-  background-color:rgb(213, 226, 235);
+  background-color: rgb(213, 226, 235);
   color: #ffffff;
   border-radius: 10px;
   overflow: hidden;
@@ -22,7 +22,7 @@ const CardContent = styled.div`
 
 const Title = styled(Link)`
   font-size: 24px;
-  color:rgb(12, 33, 88);
+  color: rgb(12, 33, 88);
   text-decoration: none;
 
   &:hover {
@@ -30,10 +30,13 @@ const Title = styled(Link)`
   }
 `;
 
-const TagsContainer = styled.div`
+const TagsContainer = styled.div<{ bgColor?: string }>`
   display: flex;
   flex-wrap: wrap;
   margin-top: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: ${({ bgColor }) => bgColor || 'transparent'};
 `;
 
 interface StyledTagProps {
@@ -41,7 +44,7 @@ interface StyledTagProps {
 }
 
 const StyledTag = styled(Tag.CheckableTag)<StyledTagProps>`
-  background-color: ${({ checked }) => (checked ? '#4d7bf3' : '#e0e0e0')};
+  background-color: ${({ checked }) => (checked ? '#4d7bf3' : 'white')};
   color: ${({ checked }) => (checked ? 'white' : '#333')};
   padding: 5px 10px;
   margin: 5px;
@@ -66,7 +69,10 @@ const PostList: React.FC<PostListProps> = () => {
   const [selectedYears, setSelectedYears] = useState<string[]>([]);
   const [years, setYears] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [isExpanded, setIsExpanded] = useState(false);
+
+  const [isYearExpanded, setIsYearExpanded] = useState(false);
+  const [isTagsExpanded, setIsTagsExpanded] = useState(false);
+
   const location = useLocation();
 
   const allTags = Array.from(new Set(postsData.flatMap(post => post.tags)));
@@ -122,13 +128,6 @@ const PostList: React.FC<PostListProps> = () => {
     setSelectedTags(updatedTags);
   };
 
-  const handleYearToggle = (year: string) => {
-    const updatedYears = selectedYears.includes(year)
-      ? selectedYears.filter(y => y !== year)
-      : [...selectedYears, year];
-    setSelectedYears(updatedYears);
-  };
-
   const filteredPosts = postsData.filter(post => {
     const title = post.title || ''; // title이 undefined일 경우 빈 문자열로 대체
     const summary = post.summary || ''; // summary가 undefined일 경우 빈 문자열로 대체
@@ -155,38 +154,36 @@ const PostList: React.FC<PostListProps> = () => {
         onChange={e => setSearchQuery(e.target.value)} // 검색 상태 업데이트
       />
       <div>
-        <button onClick={() => setIsExpanded(!isExpanded)}>
-          {isExpanded ? "Tag 접기" : "Tag 펼치기"}
+        <button onClick={() => setIsYearExpanded(!isYearExpanded)}>
+          {isYearExpanded ? "Year 접기" : "Year 펼치기"}
         </button>
 
-        {isExpanded && (
-          <>
-            <TagsContainer>
-              {years.map((year) => (
-                <StyledTag
-                  checked={selectedYears.includes(year)}
-                  key={year}
-                  onClick={() => handleYearToggle(year)}
-                >
-                  {year}
-                </StyledTag>
-              ))}
-            </TagsContainer>
+        <button onClick={() => setIsTagsExpanded(!isTagsExpanded)}>
+          {isTagsExpanded ? "Tag 접기" : "Tag 펼치기"}
+        </button>
 
-            <TagsContainer>
-              {allTags.map((tag) => (
-                <StyledTag
-                  key={tag}
-                  checked={selectedTags.includes(tag)}
-                  onClick={() => handleTagClick(tag)}
-                >
-                  {tag}
-                </StyledTag>
-              ))}
-            </TagsContainer>
-          </>
+        {isYearExpanded && (
+          <TagsContainer bgColor="#F3F6EB">
+            {years.map(year => (
+              <StyledTag key={year} checked={selectedYears.includes(year)} onClick={() => setSelectedYears(prev => prev.includes(year) ? prev.filter(y => y !== year) : [...prev, year])}>
+                {year}
+              </StyledTag>
+            ))}
+          </TagsContainer>
         )}
+
+        {isTagsExpanded && (
+          <TagsContainer bgColor="#F1ECE8">
+            {allTags.map(tag => (
+              <StyledTag key={tag} checked={selectedTags.includes(tag)} onClick={() => setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}>
+                {tag}
+              </StyledTag>
+            ))}
+          </TagsContainer>
+        )}
+        
       </div>
+
       {filteredPosts.length > 0 ? (
         filteredPosts.map(post => (
           <Card key={post.slug}>
