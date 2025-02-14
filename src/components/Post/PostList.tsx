@@ -154,11 +154,11 @@ const PostList: React.FC<PostListProps> = () => {
         onChange={e => setSearchQuery(e.target.value)} // 검색 상태 업데이트
       />
       <div>
-        <button onClick={() => setIsYearExpanded(!isYearExpanded)}>
+        <button onClick={() => setIsYearExpanded(!isYearExpanded)} style={{margin: 5}}>
           {isYearExpanded ? "Year 접기" : "Year 펼치기"}
         </button>
 
-        <button onClick={() => setIsTagsExpanded(!isTagsExpanded)}>
+        <button onClick={() => setIsTagsExpanded(!isTagsExpanded)} style={{margin: 5}}>
           {isTagsExpanded ? "Tag 접기" : "Tag 펼치기"}
         </button>
 
