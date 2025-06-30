@@ -4,7 +4,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import yaml from 'js-yaml';
 import rehypeRaw from 'rehype-raw'; // Import rehype-raw
-import { PostMetadata } from './types';
+import { Heading, PostMetadata } from './types';
+import { Outliner } from './Outliner';
+import { Components } from 'react-markdown';
 
 const PostPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +23,25 @@ const PostPage: React.FC = () => {
   });
 
   const [markdownContent, setMarkdownContent] = React.useState<string>('');
+
+  const [headings, setHeadings] = React.useState<Heading[]>([]);
+
+  const extractHeadings = React.useCallback((markdown: string): Heading[] => {
+    const lines = markdown.split('\n');
+    const headings: Heading[] = [];
+
+    lines.forEach(line => {
+      const match = /^(#{1,6})\s+(.*)/.exec(line);
+      if (match) {
+        const level = match[1].length;
+        const text = match[2].trim();
+        const id = slugify(text);
+        headings.push({ id, text, level });
+      }
+    });
+
+    return headings;
+  }, []);
 
   React.useEffect(() => {
     const parseMetadata = (markdown: string): PostMetadata => {
@@ -98,23 +119,77 @@ const PostPage: React.FC = () => {
     fetchMarkdown().then(({ metadata, markdownContent }) => {
       setMetadata(metadata);
       setMarkdownContent(markdownContent);
+
+      const headings = extractHeadings(markdownContent);
+      setHeadings(headings);
     });
 
     const searchParams = new URLSearchParams(location.search);
+
     const tagsFromParams = searchParams.getAll('tags');
-    setMetadata(prevMetadata => ({
-      ...prevMetadata,
-      tags: tagsFromParams
-    }));
-  }, [slug, location.search]);
+      setMetadata(prevMetadata => ({
+        ...prevMetadata,
+        tags: tagsFromParams
+      }));
+    }, [slug, location.search, extractHeadings]);
+    
+    const onClickTag = (tag: string) => {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set('tags', tag);
 
-  const onClickTag = (tag: string) => {
-    const searchParams = new URLSearchParams(location.search);
-    searchParams.set('tags', tag);
+      navigate({ pathname: '/', search: searchParams.toString() });
+    };
 
-    navigate({ pathname: '/', search: searchParams.toString() });
+    const slugify = (text: string): string => {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[\s]+/g, '-')
+        .replace(/[^\p{L}\p{N}-]+/gu, '')
+    };
+
+    const extractText = (children: React.ReactNode): string => {
+      if (!children) return '';
+      if (typeof children === 'string') return children;
+      if (Array.isArray(children)) {
+        return children.map(extractText).join('');
+      }
+      if (typeof children === 'object' && 'props' in children) {
+        return extractText(children.props.children);
+      }
+      return '';
+    };
+
+  const renderers: Components = {
+    h1: ({ node, ...props }) => {
+      const text = extractText(props.children);
+      const id = slugify(text);
+      return (
+        <h1 id={id} style={{ scrollMarginTop: '80px' }}>
+          {props.children}
+        </h1>
+      );
+    },
+    h2: ({ node, ...props }) => {
+      const text = extractText(props.children);
+      const id = slugify(text);
+      return (
+        <h2 id={id} style={{ scrollMarginTop: '80px' }}>
+          {props.children}
+        </h2>
+      );
+    },
+    h3: ({ node, ...props }) => {
+      const text = extractText(props.children);
+      const id = slugify(text);
+      return (
+        <h3 id={id} style={{ scrollMarginTop: '80px' }}>
+          {props.children}
+        </h3>
+      );
+    },
   };
-  
+
   const onClickYear = (year: string) => {
     const searchParams = new URLSearchParams(location.search);
     searchParams.set('years', year);
@@ -148,9 +223,18 @@ const PostPage: React.FC = () => {
           </button>
         </p>
       }
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-        {markdownContent}
-      </ReactMarkdown>
+      <div style={{ display: 'flex' }}>
+        <div style={{ flex: 1, paddingRight: '260px' }}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={renderers}
+          >
+            {markdownContent}
+          </ReactMarkdown>
+        </div>
+        <Outliner headings={headings} />
+      </div>
     </div>
   );
 };

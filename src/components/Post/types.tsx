@@ -17,3 +17,9 @@ export type PostMetadata = {
     date: string;
     year: string;
 };
+
+export type Heading = {
+  id: string;
+  text: string;
+  level: number;
+};
